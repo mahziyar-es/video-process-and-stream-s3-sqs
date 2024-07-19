@@ -1,0 +1,38 @@
+---
+version: "3"
+
+name: video-processing
+services:
+  frontend:
+    build:
+      context: ../apps/frontend/
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3002:3000
+    volumes:
+      - ../apps/frontend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  backend:
+    build:
+      context: ../apps/backend/
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3001:3000
+    volumes:
+      - ../apps/backend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - localstack
+
+  localstack:
+    image: localstack/localstack
+    environment:
+      - SERVICES=s3,sqs,dynamodb
+      - LS_LOG=warn
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - 4566:4566
+      - 4510-4559:4510-4559
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
