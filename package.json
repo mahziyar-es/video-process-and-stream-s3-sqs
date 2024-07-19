@@ -1,0 +1,14 @@
+{
+  "name": "video-process-and-streaming-s3-sqs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker-compose -f ./docker/docker-compose.yml up -d",
+    "stop": "docker-compose -f ./docker/docker-compose.yml down",
+    "stop:cleanup": "docker-compose -f ./docker/docker-compose.yml down -v"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
