@@ -7,11 +7,11 @@ export class SQSService {
 
   constructor(private readonly sqsClient: SQSClient) {}
 
-  async publish(message: string) {
+  async publish(messageBody: { action: string; [key: string]: any }) {
     try {
       const command = new SendMessageCommand({
         QueueUrl: this.queueURL,
-        MessageBody: message,
+        MessageBody: JSON.stringify(messageBody),
       });
 
       await this.sqsClient.send(command);
