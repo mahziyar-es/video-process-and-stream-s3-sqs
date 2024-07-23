@@ -27,7 +27,7 @@ export class VideosService {
     });
   }
 
-  private async process(videoKey: string) {
+  async process(videoKey: string) {
     const video = await this.s3Service.getObjectFromBucketWithKey(
       S3Buckets.RAW_VIDEOS_BUCKET,
       videoKey,
