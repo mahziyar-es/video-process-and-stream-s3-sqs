@@ -4,6 +4,7 @@ import { S3Service } from 'src/s3/s3.service';
 import { SQSService } from 'src/sqs/sqs.service';
 import { S3Buckets } from 'src/s3/s3-buckets.enum';
 import { v4 as uuidv4 } from 'uuid';
+import * as ffmpeg from 'fluent-ffmpeg';
 
 @Injectable()
 export class VideosService {
@@ -28,10 +29,38 @@ export class VideosService {
   }
 
   async process(videoKey: string) {
-    const video = await this.s3Service.getObjectFromBucketWithKey(
+    console.log(`processing video ${videoKey}`);
+
+    const videoPresignUrl = await this.s3Service.getPresignUrlForObject(
       S3Buckets.RAW_VIDEOS_BUCKET,
       videoKey,
     );
-    console.log(`processing video ${videoKey}`, video.transformToByteArray());
+
+    const { resolution, videoBitrate, audioBitrate } = {
+      resolution: '320x180',
+      videoBitrate: '500k',
+      audioBitrate: '64k',
+    };
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(videoPresignUrl)
+        .outputOptions([
+          `-c:v h264`,
+          `-b:v ${videoBitrate}`,
+          `-c:a aac`,
+          `-b:a ${audioBitrate}`,
+          `-vf scale=${resolution}`,
+          `-f hls`,
+          `-hls_time 10`,
+          `-hls_list_size 0`,
+          // `-hls_segment_filename hls/${segmentFileName}`,
+        ])
+        .output(`hls/${videoKey}.m3u8`)
+        .on('end', () => resolve(true))
+        .on('error', (err) => reject(err))
+        .run();
+    });
+
+    console.log('done');
   }
 }
