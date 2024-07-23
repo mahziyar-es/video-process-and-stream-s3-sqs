@@ -7,6 +7,7 @@ import {
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Readable } from 'stream';
 import { S3Buckets } from './s3-buckets.enum';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 @Injectable()
 export class S3Service {
@@ -65,6 +66,23 @@ export class S3Service {
       Logger.error(JSON.stringify(error));
       throw new HttpException(
         'Something went wrong during deleting object from S3 bucket',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getPresignUrlForObject(bucket: S3Buckets, key: string) {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      });
+
+      return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+    } catch (error: unknown) {
+      Logger.error(JSON.stringify(error));
+      throw new HttpException(
+        'Something went wrong during creating s3 presign url for object',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
