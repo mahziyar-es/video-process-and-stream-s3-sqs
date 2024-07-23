@@ -1,6 +1,5 @@
-import { Message, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { SqsMessageHandler } from '@ssut/nestjs-sqs';
 
 @Injectable()
 export class SQSService {
@@ -23,10 +22,5 @@ export class SQSService {
 
       throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  @SqsMessageHandler('general_consumer', false)
-  public async handleMessage(message: Message) {
-    console.log('catched message', message);
   }
 }
