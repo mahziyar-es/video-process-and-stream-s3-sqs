@@ -26,6 +26,13 @@ resource "aws_s3_bucket" "processes_videos_bucket" {
   bucket = "processed-videos-bucket"
 }
 
+resource "aws_s3_bucket_public_access_block" "processes_videos_bucket_public_access_policy" {
+  bucket = aws_s3_bucket.processes_videos_bucket.id
+
+  block_public_acls   = false
+  block_public_policy = false
+}
+
 resource "aws_sqs_queue" "queue" {
   name = "queue"
 }
