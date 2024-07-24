@@ -6,7 +6,7 @@ import { S3Buckets } from 'src/s3/s3-buckets.enum';
 import { v4 as uuidv4 } from 'uuid';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { createReadStream, existsSync } from 'fs';
-import { mkdir, readdir } from 'fs/promises';
+import { mkdir, readdir, rm } from 'fs/promises';
 
 @Injectable()
 export class VideosService {
@@ -120,6 +120,32 @@ export class VideosService {
     } catch (error: unknown) {
       Logger.error(
         'Something went wrong during the upload of processed video files to S3',
+        JSON.stringify(error),
+      );
+    }
+  }
+
+  async deleteProcessedVideoFile(videoKey: string) {
+    Logger.log(`deleting processed video ${videoKey} files`);
+
+    const processedVideoFolder = `processed-videos/${videoKey}`;
+
+    try {
+      await rm(processedVideoFolder, { recursive: true, force: true });
+
+      Logger.log('Successfully deleted all processed video files from local');
+
+      await this.s3Service.deleteObjectInBucketWithKey(
+        S3Buckets.RAW_VIDEOS_BUCKET,
+        videoKey,
+      );
+
+      Logger.log(
+        'Successfully deleted raw file of the processed video from S3',
+      );
+    } catch (error: unknown) {
+      Logger.error(
+        'Something went wrong when deleting processed video files',
         JSON.stringify(error),
       );
     }
