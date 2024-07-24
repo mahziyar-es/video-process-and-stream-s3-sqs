@@ -17,6 +17,16 @@ export class SQSConsumerService {
 
     if (body.action === 'start_video_process' && body.video_key) {
       this.videosService.process(body.video_key);
+    } else if (
+      body.action === 'upload_processed_video_to_s3' &&
+      body.video_key
+    ) {
+      this.videosService.uploadProcessedVideoToS3(body.video_key);
+    } else if (
+      body.action === 'delete_processed_video_files' &&
+      body.video_key
+    ) {
+      this.videosService.deleteProcessedVideoFile(body.video_key);
     }
   }
 }
