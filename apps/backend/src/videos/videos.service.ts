@@ -5,8 +5,8 @@ import { SQSService } from 'src/sqs/sqs.service';
 import { S3Buckets } from 'src/s3/s3-buckets.enum';
 import { v4 as uuidv4 } from 'uuid';
 import * as ffmpeg from 'fluent-ffmpeg';
-import { existsSync } from 'fs';
-import { mkdir } from 'fs/promises';
+import { createReadStream, existsSync } from 'fs';
+import { mkdir, readdir } from 'fs/promises';
 
 @Injectable()
 export class VideosService {
@@ -91,5 +91,37 @@ export class VideosService {
         .on('error', (err) => reject(err))
         .run();
     });
+  }
+
+  async uploadProcessedVideoToS3(videoKey: string) {
+    Logger.log(`uploading processed video ${videoKey} from local to S3`);
+
+    const processedVideoFolder = `processed-videos/${videoKey}`;
+
+    const files = await readdir(processedVideoFolder);
+
+    try {
+      for (const file of files) {
+        const readStram = createReadStream(`${processedVideoFolder}/${file}`);
+
+        await this.s3Service.uploadToBucket(
+          S3Buckets.PROCESSED_VIDEOS_BUCKET,
+          file,
+          readStram,
+        );
+      }
+
+      Logger.log('Successfully uploaded processed video files to S3');
+
+      this.sqsService.publish({
+        action: 'delete_processed_video_files',
+        video_key: videoKey,
+      });
+    } catch (error: unknown) {
+      Logger.error(
+        'Something went wrong during the upload of processed video files to S3',
+        JSON.stringify(error),
+      );
+    }
   }
 }
