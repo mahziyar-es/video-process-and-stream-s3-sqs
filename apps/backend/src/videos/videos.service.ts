@@ -15,13 +15,23 @@ export class VideosService {
     private readonly sqsService: SQSService,
   ) {}
 
-  async create(createVideoDto: CreateVideoDto, video: Express.Multer.File) {
+  async create(
+    createVideoDto: CreateVideoDto,
+    video: Express.Multer.File,
+    thumbnail: Express.Multer.File,
+  ) {
     const videoKey = uuidv4();
 
     await this.s3Service.uploadToBucket(
       S3Buckets.RAW_VIDEOS_BUCKET,
       videoKey,
       video.buffer,
+    );
+
+    await this.s3Service.uploadToBucket(
+      S3Buckets.THUMBNAILS_BUCKET,
+      videoKey,
+      thumbnail.buffer,
     );
 
     await this.sqsService.publish({
