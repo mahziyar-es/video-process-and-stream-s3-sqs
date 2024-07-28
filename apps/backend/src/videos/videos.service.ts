@@ -9,6 +9,7 @@ import { createReadStream, existsSync } from 'fs';
 import { mkdir, readdir, rm } from 'fs/promises';
 import { DynamoDBService } from 'src/dynamodb/dynamodb.service';
 import { DynamoDBTables } from 'src/dynamodb/dynamodb-tables.enum';
+import { extname } from 'path';
 
 @Injectable()
 export class VideosService {
@@ -31,9 +32,11 @@ export class VideosService {
       video.buffer,
     );
 
+    const thumbnailKey = `${videoKey}${extname(thumbnail.originalname)}`;
+
     await this.s3Service.uploadToBucket(
       S3Buckets.THUMBNAILS_BUCKET,
-      videoKey,
+      thumbnailKey,
       thumbnail.buffer,
     );
 
@@ -42,6 +45,7 @@ export class VideosService {
       title: createVideoDto.title,
       description: createVideoDto.description,
       video_status: 'pending',
+      thumbnail: `${process.env.S3_BUCKETS_BASE_URL}/${S3Buckets.THUMBNAILS_BUCKET}/${thumbnailKey}`,
     });
 
     await this.sqsService.publish({
