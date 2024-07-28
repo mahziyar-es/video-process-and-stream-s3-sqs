@@ -25,5 +25,7 @@ export class MultiFileValidatorPipe implements PipeTransform {
         );
       }
     }
+
+    return value;
   }
 }
