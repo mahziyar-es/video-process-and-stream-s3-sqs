@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -13,6 +14,11 @@ import { MultiFileValidatorPipe } from './multi-file-validator.pipe';
 @Controller('/videos')
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
+
+  @Get()
+  async findAll() {
+    return this.videosService.findAll();
+  }
 
   @Post()
   @UseInterceptors(

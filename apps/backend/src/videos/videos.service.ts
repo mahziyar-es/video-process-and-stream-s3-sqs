@@ -19,6 +19,12 @@ export class VideosService {
     private readonly dynamodbService: DynamoDBService,
   ) {}
 
+  async findAll() {
+    return await this.dynamodbService.getAllItemsFromTable(
+      DynamoDBTables.VIDEOS,
+    );
+  }
+
   async create(
     createVideoDto: CreateVideoDto,
     video: Express.Multer.File,
