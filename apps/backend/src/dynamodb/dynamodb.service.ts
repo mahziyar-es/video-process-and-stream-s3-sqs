@@ -1,11 +1,26 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  GetCommand,
+  PutCommand,
+  ScanCommand,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb';
 import { Injectable } from '@nestjs/common';
 import { DynamoDBTables } from './dynamodb-tables.enum';
 
 @Injectable()
 export class DynamoDBService {
   constructor(private readonly dynamodbClient: DynamoDBClient) {}
+
+  async getAllItemsFromTable(table: DynamoDBTables) {
+    const command = new ScanCommand({
+      TableName: table,
+    });
+
+    const response = await this.dynamodbClient.send(command);
+
+    return response.Items;
+  }
 
   async getItemFromTable(table: DynamoDBTables, key: Record<string, any>) {
     const command = new GetCommand({
