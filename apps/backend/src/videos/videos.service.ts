@@ -7,12 +7,15 @@ import { v4 as uuidv4 } from 'uuid';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { createReadStream, existsSync } from 'fs';
 import { mkdir, readdir, rm } from 'fs/promises';
+import { DynamoDBService } from 'src/dynamodb/dynamodb.service';
+import { DynamoDBTables } from 'src/dynamodb/dynamodb-tables.enum';
 
 @Injectable()
 export class VideosService {
   constructor(
     private readonly s3Service: S3Service,
     private readonly sqsService: SQSService,
+    private readonly dynamodbService: DynamoDBService,
   ) {}
 
   async create(
@@ -34,14 +37,33 @@ export class VideosService {
       thumbnail.buffer,
     );
 
+    await this.dynamodbService.createItemInTable(DynamoDBTables.VIDEOS, {
+      key: videoKey,
+      title: createVideoDto.title,
+      description: createVideoDto.description,
+      video_status: 'pending',
+    });
+
     await this.sqsService.publish({
       action: 'start_video_process',
       video_key: videoKey,
     });
+
+    return {
+      video_key: videoKey,
+    };
   }
 
   async process(videoKey: string) {
     Logger.log(`processing video ${videoKey}`);
+
+    await this.dynamodbService.updateItemInTable(
+      DynamoDBTables.VIDEOS,
+      { key: videoKey },
+      {
+        video_status: 'processing',
+      },
+    );
 
     const videoPresignUrl = await this.s3Service.getPresignUrlForObject(
       S3Buckets.RAW_VIDEOS_BUCKET,
@@ -122,6 +144,14 @@ export class VideosService {
       }
 
       Logger.log('Successfully uploaded processed video files to S3');
+
+      await this.dynamodbService.updateItemInTable(
+        DynamoDBTables.VIDEOS,
+        { key: videoKey },
+        {
+          video_status: 'ready',
+        },
+      );
 
       this.sqsService.publish({
         action: 'delete_processed_video_files',
