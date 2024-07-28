@@ -27,6 +27,7 @@ services:
       - AWS_ACCESS_ID=test
       - AWS_ACCESS_SECRET=test
       - SQS_QUEUE_URL=http://localstack:4566/000000000000/queue
+      - S3_BUCKETS_BASE_URL=http://localhost:4566
     depends_on:
       - localstack
 
