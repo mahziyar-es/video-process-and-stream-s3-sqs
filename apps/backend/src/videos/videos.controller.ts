@@ -2,24 +2,48 @@ import {
   Body,
   Controller,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { VideosService } from './videos.service';
+import { MultiFileValidatorPipe } from './multi-file-validator.pipe';
 
 @Controller('/videos')
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('video'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'video', maxCount: 1 },
+      { name: 'thumbnail', maxCount: 1 },
+    ]),
+  )
   async create(
     @Body() createVideoDto: CreateVideoDto,
-    @UploadedFile() video: Express.Multer.File,
+    @UploadedFiles(
+      new MultiFileValidatorPipe({
+        video: {
+          required: true,
+          mimetype: ['video/mp4'],
+        },
+        thumbnail: {
+          required: true,
+          mimetype: ['image/jpg', 'image/png', 'image/jpeg'],
+        },
+      }),
+    )
+    files: {
+      video: Express.Multer.File[];
+      thumbnail: Express.Multer.File[];
+    },
   ) {
-    return this.videosService.create(createVideoDto, video);
+    return this.videosService.create(
+      createVideoDto,
+      files.video[0],
+      files.thumbnail[0],
+    );
   }
 }
