@@ -4,6 +4,13 @@ const nextConfig = {
     eslint: {
       dirs: ['src'],
     },
+    images: {
+      remotePatterns: [
+        {
+          hostname: '*',
+        },
+      ],
+    }
 };
 
 export default nextConfig;
