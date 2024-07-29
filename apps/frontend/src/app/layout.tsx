@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: "Video Processing service",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{
