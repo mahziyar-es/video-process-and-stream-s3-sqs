@@ -3,5 +3,6 @@ export type Video = {
   title: string;
   description: string;
   thumbnail: string;
-  status: "pending" | "processing" | "ready";
+  video?: string;
+  video_status: "pending" | "processing" | "ready";
 };
