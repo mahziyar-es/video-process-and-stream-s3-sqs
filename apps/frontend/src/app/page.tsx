@@ -1,19 +1,27 @@
+import { fetchVideos } from "@/api";
 import { VideoListItem } from "@/components/video-list-item";
+import Link from "next/link";
 
-export default function Page() {
+export default async function Page() {
+  const videos = await fetchVideos();
+
+  if (!videos || videos.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="text-xl">There are no videos</div>
+        <div className="mt-4">
+          <Link href="/upload" className="text-orange-500 text-lg ">
+            Upload one
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {new Array(10).fill(1).map((video, index) => (
-        <VideoListItem
-          key={index}
-          video={{
-            key: "asdasd",
-            title: "test title",
-            description: "test desc",
-            thumbnail: "/preview-thumbnail.jpg",
-            status: "ready",
-          }}
-        />
+      {videos.map((video, index) => (
+        <VideoListItem key={index} video={video} />
       ))}
     </div>
   );
