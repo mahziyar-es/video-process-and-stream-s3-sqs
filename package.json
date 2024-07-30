@@ -1,14 +1,22 @@
 {
   "name": "video-process-and-streaming-s3-sqs",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Simple video processing system using FFMPEG and AWS SQS as event bus, AWS S3 as storage space for files, AWS DynamoDB for database. The frontend is created using Nextjs and the backend is Nestjs.",
   "scripts": {
     "start": "docker-compose -f ./docker/docker-compose.yml up -d",
     "stop": "docker-compose -f ./docker/docker-compose.yml down",
     "stop:cleanup": "docker-compose -f ./docker/docker-compose.yml down -v"
   },
-  "keywords": [],
+  "keywords": [
+    "aws",
+    "s3",
+    "sqs",
+    "dynamodb",
+    "video-processing",
+    "nestjs",
+    "nextjs",
+    "terraform"
+  ],
   "author": "",
   "license": "ISC"
 }
