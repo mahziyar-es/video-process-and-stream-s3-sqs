@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -18,6 +19,11 @@ export class VideosController {
   @Get()
   async findAll() {
     return this.videosService.findAll();
+  }
+
+  @Get(':key')
+  async findOne(@Param('key') key: string) {
+    return this.videosService.findOne(key);
   }
 
   @Post()

@@ -25,6 +25,12 @@ export class VideosService {
     );
   }
 
+  async findOne(key: string) {
+    return await this.dynamodbService.getItemFromTable(DynamoDBTables.VIDEOS, {
+      key: key,
+    });
+  }
+
   async create(
     createVideoDto: CreateVideoDto,
     video: Express.Multer.File,
