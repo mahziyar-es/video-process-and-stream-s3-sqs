@@ -160,6 +160,7 @@ export class VideosService {
         { key: videoKey },
         {
           video_status: 'ready',
+          video: `${process.env.S3_BUCKETS_BASE_URL}/${S3Buckets.PROCESSED_VIDEOS_BUCKET}/${videoKey}.m3u8`,
         },
       );
 
