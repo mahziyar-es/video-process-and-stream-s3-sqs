@@ -40,7 +40,13 @@ export const VideoForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createVideo(values);
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("video", values.video);
+    formData.append("thumbnail", values.thumbnail);
+
+    await createVideo(formData);
     form.reset();
     videoInput.current!.value = "";
     thumbnailInput.current!.value = "";

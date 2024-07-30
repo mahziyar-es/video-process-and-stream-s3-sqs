@@ -1,16 +1,11 @@
+"use server";
 import { Video } from "./types/video.type";
 import { httpRequest } from "./utils";
 
-export const createVideo = async (videoData: any) => {
-  const formData = new FormData();
-  formData.append("title", videoData.title);
-  formData.append("description", videoData.description);
-  formData.append("video", videoData.video);
-  formData.append("thumbnail", videoData.thumbnail);
-
+export const createVideo = async (videoData: FormData) => {
   const data = await httpRequest("videos", {
     method: "POST",
-    body: formData,
+    body: videoData,
   });
 
   return data;
