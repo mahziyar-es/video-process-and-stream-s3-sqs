@@ -23,3 +23,11 @@ export const fetchVideos = async () => {
 
   return data as Video[];
 };
+
+export const fetchVideo = async (key: string) => {
+  const data = await httpRequest(`videos/${key}`, {
+    cache: "no-store",
+  });
+
+  return data as Video;
+};
