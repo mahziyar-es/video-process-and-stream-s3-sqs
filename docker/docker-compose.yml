@@ -12,6 +12,12 @@ services:
     volumes:
       - ../apps/frontend:/usr/src/app
       - /usr/src/app/node_modules
+    environment:
+      - WDS_SOCKET_HOST=127.0.0.1 
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true 
+    depends_on:
+      - backend
 
   backend:
     build:
@@ -27,9 +33,10 @@ services:
       - AWS_ACCESS_ID=test
       - AWS_ACCESS_SECRET=test
       - SQS_QUEUE_URL=http://localstack:4566/000000000000/queue
-      - S3_BUCKETS_BASE_URL=http://localhost:4566
+      - S3_BUCKETS_BASE_URL=http://localstack:4566
     depends_on:
-      - localstack
+      localstack:
+        condition: service_healthy
 
   localstack:
     image: localstack/localstack
@@ -42,3 +49,10 @@ services:
       - 4510-4559:4510-4559
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - "./localstack/ready.sh:/etc/localstack/init/ready.d/ready.sh"
+
+    healthcheck:
+      test: ["CMD", "awslocal", "sqs", "list-queues"]
+      interval: 1s
+      timeout: 5s
+      retries: 30
