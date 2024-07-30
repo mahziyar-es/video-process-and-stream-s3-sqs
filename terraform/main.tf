@@ -37,6 +37,15 @@ resource "aws_s3_bucket_public_access_block" "processes_videos_bucket_public_acc
   block_public_policy = false
 }
 
+resource "aws_s3_bucket_cors_configuration" "processes_videos_bucket_cors" {
+  bucket = aws_s3_bucket.processes_videos_bucket.id
+
+  cors_rule {
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "thumbnails_bucket_public_access_policy" {
   bucket = aws_s3_bucket.thumbnails_bucket.id
 
